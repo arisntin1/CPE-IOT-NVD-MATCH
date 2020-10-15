@@ -24,7 +24,7 @@ mycursor = mydb.cursor()
 
 #print(mydb)
 
-ipaddrs = "192.168.66.10/28"
+ipaddrs = "192.168.31.1"
 np = NmapParse()
 values = np.NmapScanParse(ipaddrs)
 val = '0'
@@ -40,8 +40,7 @@ for i in values:
         if len(myresult) == 0:
             print("Device CPE " + cpevl2 + "  NOT IN table")
             cve, description = np.ParseNVDJson(cpevl3)
-            if len(cve) != 0 :
-                print (*cve, sep = "\n")
+            print (cve, description)
         else:
             query2 = "SELECT cpe FROM cpetbl WHERE cpe LIKE '{}' AND iot = 'YES'".format(cpevl3)
             mycursor.execute(query2, cpevl2)
