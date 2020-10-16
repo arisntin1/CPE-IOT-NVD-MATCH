@@ -3,7 +3,7 @@ import json
 import mysql.connector
 from JsonParsing import NmapParse
 from tkinter import *
-#from GUI import App
+from GUI import App
 
 from cpe import CPE
 mydb = mysql.connector.connect(
@@ -13,9 +13,9 @@ mydb = mysql.connector.connect(
     database="cpeiotdb"
 )
 
-#def main():
-#  app = App()
-#  app.mainloop()
+
+
+
 
 
 mycursor = mydb.cursor()
@@ -24,7 +24,7 @@ mycursor = mydb.cursor()
 
 #print(mydb)
 
-ipaddrs = "192.168.31.1"
+ipaddrs = "192.168.66.10/28"
 np = NmapParse()
 values = np.NmapScanParse(ipaddrs)
 val = '0'
