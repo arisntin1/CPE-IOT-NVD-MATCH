@@ -1,5 +1,10 @@
 from tkinter import *
+from tkinter import messagebox
+from main import TEST
 from PIL import Image,ImageTk
+
+
+
 
 
 class UI:
@@ -22,10 +27,16 @@ class UI:
 
                 title=Label(frame1,text="Please insert network address for device scan: ", font=("Arial",20,"bold"),bg="white").place(x=50,y=30)
 
-
-                ipentry=Entry(frame1,font=("Arial",20,"bold"),bg="white", fg="red").place(x=680,y=30)
+                self.var_ipentry=StringVar()
+                ipentry=Entry(frame1,font=("Arial",20,"bold"),bg="white", fg="red",textvariable=self.var_ipentry).place(x=680,y=30)
                 self.btn_img=ImageTk.PhotoImage(file="images/magnifying-glass.png")
-                btn=Button(frame1,image=self.btn_img,bg="blue",cursor="hand2").place(x=1010, y=25)
+                btn=Button(frame1,image=self.btn_img,bg="blue",cursor="hand2",command=self.provide_address).place(x=1010, y=25)
+
+        def provide_address(self):
+                if self.var_ipentry.get()=="":
+                        messagebox.showerror()("Error Provide Value",parent=self.root)
+                else:
+                        TEST.procedure(self.var_ipentry.get())
 
 
 
