@@ -34,7 +34,7 @@ class UI:
 
         def provide_address(self):
                 if self.var_ipentry.get()=="":
-                        messagebox.showerror()("Error Provide Value",parent=self.root)
+                        messagebox.showerror("Error! Provide Value","NETWORK ADDRESS CANNOT BE BLANK",parent=self.root)
                 else:
                         TEST.procedure(self.var_ipentry.get())
 
