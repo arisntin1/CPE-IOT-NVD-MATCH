@@ -36,4 +36,4 @@ class TEST:
 #print (values)
 #print(mycursor.rowcount, "record were inserted.")
 #mycursor.execute("CREATE TABLE cpetbl (id INT AUTO_INCREMENT PRIMARY KEY, cpe VARCHAR(255) UNIQUE, iot VARCHAR(255))")
-#mydb.commit()
+
