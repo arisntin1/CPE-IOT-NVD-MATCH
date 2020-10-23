@@ -1,4 +1,6 @@
 import threading
+import time
+import tkinter
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -17,6 +19,12 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
+
+class CPE:
+    def __init__(self, name_of_cpe, cve_list, desc_list):
+        self.cpe_name = name_of_cpe
+        self.cve_col = cve_list
+        self.desc_col = desc_list
 
 class UI:
 
@@ -94,6 +102,8 @@ class UI:
 
         # Close app
 
+
+
     def close_window(self):
         root.destroy()
 
@@ -124,43 +134,53 @@ class Procedures:
             cpevl = (i)
             cpevl2 = str(cpevl).replace('[', '(').replace(']', ',)')
             cpevl3 = cpevl2.replace('(\'', '').replace('\',)', '').replace(" ", '')
-            query = "SELECT cpe FROM iottbl WHERE cpe LIKE '{}'".format(cpevl3)
+            query = "SELECT cpe FROM cpetbl WHERE cpe LIKE '{}'".format(cpevl3)
             mycursor.execute(query, cpevl2)
             myresult = mycursor.fetchall()
-            if len(myresult) == 0: # Miso
-                #print("Device CPE " + cpevl2 + "  NOT IN table")
-                cve, description = np.ParseNVDJson(cpevl3)
 
-                cpe_obj = CPE(cpevl3, cve, description) # Creation of object
-                print(cpe_obj) # Just for testing purposes
-                cpe_list.append(cpe_obj) # Insertion to list
+            if len(myresult) == 0: #CHECK : Not in table
+                # print("Device CPE " + cpevl2 + "  NOT IN table")
+                result = tkinter.messagebox.askquestion('CPE NOT IN DATABASE', 'IS  %s  RELATED TO AN IOT DEVICE?' %(str(cpevl3)))
+                if result == 'yes':
+                    cve, description = np.ParseNVDJson(cpevl3)
+                    cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
+                    cpe_list.append(cpe_obj)  # Insertion to list
+                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'YES')", cpevl)
+                    mydb.commit()
+                else:
+                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'NO')", cpevl)
+                    mydb.commit()
+                    #root.destroy()  # Closing Tkinter window forcefully.
 
-                # print(cve, description)            else:
-                query2 = "SELECT cpe FROM iottbl WHERE cpe LIKE '{}' AND iot = 'YES'".format(cpevl3)
+                print(mycursor.rowcount, "record were inserted.")
+
+
+                # print(cve, description)
+            else: #CHECK: CPE IS IN TABLE
+                query2 = "SELECT cpe FROM cpetbl WHERE cpe LIKE '{}' AND iot = 'YES'".format(cpevl3)
                 mycursor.execute(query2, cpevl2)
                 myresult2 = mycursor.fetchall()
-                if len(myresult2) == 0:
+                #print("SPERAAAAAAAAAAAAAA",str(myresult2).replace('[', '').replace('(\'', '').replace('\',)]', ''))
+                if len(myresult2) == 0: #IT IS IN TABLE and is NOT iot
                     print("Device CPE " + cpevl2 + " already exists in table and IS NOT iot")
-                    np.ParseNVDJson(cpevl3)
-                else:
-                    print("Device CPE " + cpevl2 + " already exists in table and IS iot")
 
-        for ind in cpe_list:
-            print(ind.cpe_name)
-            print(ind.cve_col)
-            print(ind.desc_col)
+                else: #IT IS IN TABLE AND IS IOT
+                    #print("Device CPE " + cpevl2 + " already exists in table and IS  iot")
+                    cve, description = np.ParseNVDJson(cpevl3)
+                    cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
+                    cpe_list.append(cpe_obj)  # Insertion to list
+
+        #for ind in cpe_list:
+            #print(ind.cpe_name)
+            #print(ind.cve_col)
+            #print(ind.desc_col)
 
         asf.destfr1()
         asf.frame2(cpe_list)
 
 
-class CPE:
-    def __init__(self, name_of_cpe, cve_list, desc_list):
-        self.cpe_name = name_of_cpe
-        self.cve_col = cve_list
-        self.desc_col = desc_list
 
-
+mydb.commit()
 root = Tk()
 obj = UI(root)
 root.mainloop()
