@@ -53,21 +53,22 @@ class UI:
 
     # Second Frame
     def frame2(self, des_list):
-        self.frame1 = Frame(self.root, bg="white")
+        self.frame1 = Frame(self.root, bg="#000080")
         self.frame1.place(x=1, y=1, relwidth=1, relheight=1)
+        Label(self.frame1, text="HERE ARE ALL THE IOT DEVICES VULNERABILITES!", font=("Arial", 20, "bold"),fg="white", bg='blue4').place(x=400, y=50)
         # Using treeview widget
         treev = ttk.Treeview(root, selectmode='browse')
 
         # Calling pack method w.r.to treeview
-        treev.place(x=135, y=200, width=1300, height=500)
+        treev.place(x=60, y=150, width=1400, height=530)
 
         # Constructing vertical scrollbar
         # with treeview
-        verscrlbar = ttk.Scrollbar(root, orient="vertical", command=treev.yview)
+        verscrlbar = ttk.Scrollbar(root, orient="horizontal", command=treev.xview )
 
         # Calling pack method w.r.to verical
         # scrollbar
-        verscrlbar.place(x=132, y=190)
+        verscrlbar.place(x=500, y=700, width=450)
 
         # Configuring treeview
         treev.configure(xscrollcommand=verscrlbar.set)
@@ -79,15 +80,15 @@ class UI:
 
         # Assigning the width and anchor to  the
         # respective columns
-        treev.column("1", minwidth=0, width=100, stretch=NO, anchor='c')
-        treev.column("2", minwidth=0, width=100, stretch=NO, anchor='se')
-        treev.column("3", minwidth=0, width=100, stretch=YES, anchor='se')
+        treev.column("1", minwidth=0, width=300, stretch=NO, anchor='c')
+        treev.column("2", minwidth=0, width=150, stretch=NO, anchor='c')
+        treev.column("3", minwidth=0, width=3500, stretch=YES, anchor='w')
 
         # Assigning the heading names to the
         # respective columns
         treev.heading("1", text="CPE")
         treev.heading("2", text="CVE")
-        treev.heading("3", text="DESCRIPTION")
+        treev.heading("3", text="DESCRIPTION", anchor='w')
 
         # Inserting the items and their features to the
         # columns built
