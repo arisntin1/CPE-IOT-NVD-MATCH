@@ -53,7 +53,7 @@ class UI:
 
     # Second Frame
     def frame2(self, des_list):
-        self.frame1 = Frame(self.root, bg="#000080")
+        self.frame1 = Frame(self.root, bg="#BFBFBF")
         self.frame1.place(x=1, y=1, relwidth=1, relheight=1)
         Label(self.frame1, text="HERE ARE ALL THE IOT DEVICES VULNERABILITES!", font=("Arial", 20, "bold"),fg="white", bg='blue4').place(x=400, y=50)
         # Using treeview widget
