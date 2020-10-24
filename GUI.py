@@ -1,12 +1,9 @@
 import threading
-import time
 import tkinter
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from tkinter import ttk
-import json
-import nmap
 import mysql.connector
 from JsonParsing import NmapParse
 
@@ -57,12 +54,12 @@ class UI:
     # Second Frame
     def frame2(self, des_list):
         self.frame1 = Frame(self.root, bg="white")
-        self.frame1.place(x=250, y=250, width=1100, height=600)
+        self.frame1.place(x=1, y=1, relwidth=1, relheight=1)
         # Using treeview widget
         treev = ttk.Treeview(root, selectmode='browse')
 
         # Calling pack method w.r.to treeview
-        treev.place(x=250, y=250, width=1100, height=600)
+        treev.place(x=135, y=200, width=1300, height=500)
 
         # Constructing vertical scrollbar
         # with treeview
@@ -70,7 +67,7 @@ class UI:
 
         # Calling pack method w.r.to verical
         # scrollbar
-        verscrlbar.place(x=235, y=235)
+        verscrlbar.place(x=132, y=190)
 
         # Configuring treeview
         treev.configure(xscrollcommand=verscrlbar.set)
@@ -82,9 +79,9 @@ class UI:
 
         # Assigning the width and anchor to  the
         # respective columns
-        treev.column("1", width=90, anchor='c')
-        treev.column("2", width=90, anchor='se')
-        treev.column("3", width=90, anchor='se')
+        treev.column("1", minwidth=0, width=100, stretch=NO, anchor='c')
+        treev.column("2", minwidth=0, width=100, stretch=NO, anchor='se')
+        treev.column("3", minwidth=0, width=100, stretch=YES, anchor='se')
 
         # Assigning the heading names to the
         # respective columns
@@ -94,15 +91,11 @@ class UI:
 
         # Inserting the items and their features to the
         # columns built
-        treev.insert("", 'end', text="L1",
-                     values=("Nidhi", "F", "25"))
+
         for item in des_list:
+            id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
             for index in range(len(item.cve_col)):
-                treev.insert("", 'end', text='L1', values=(item.cpe_name, item.cve_col[index], item.desc_col[index]))
-
-        # Close app
-
-
+                treev.insert(id, 'end', values=(index+1, item.cve_col[index], item.desc_col[index]))
 
     def close_window(self):
         root.destroy()
@@ -118,7 +111,7 @@ class UI:
 class Procedures:
 
     def procedure(ipaddress):
-        asf = UI(root)
+        rootfr = UI(root)
         ipaddrs = ipaddress
         np = NmapParse()
         values = np.NmapScanParse(ipaddrs)
@@ -128,7 +121,7 @@ class Procedures:
         # periexei antikeimena typou CPE
 
         # CPE einai antikeimeno me onoma tou cpe, lista cve, lista description
-        cpe_list = []
+        cpe_cve_desc = []
 
         for i in values:
             cpevl = (i)
@@ -144,7 +137,7 @@ class Procedures:
                 if result == 'yes':
                     cve, description = np.ParseNVDJson(cpevl3)
                     cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
-                    cpe_list.append(cpe_obj)  # Insertion to list
+                    cpe_cve_desc.append(cpe_obj)  # Insertion to list
                     mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'YES')", cpevl)
                     mydb.commit()
                 else:
@@ -160,24 +153,23 @@ class Procedures:
                 query2 = "SELECT cpe FROM cpetbl WHERE cpe LIKE '{}' AND iot = 'YES'".format(cpevl3)
                 mycursor.execute(query2, cpevl2)
                 myresult2 = mycursor.fetchall()
-                #print("SPERAAAAAAAAAAAAAA",str(myresult2).replace('[', '').replace('(\'', '').replace('\',)]', ''))
                 if len(myresult2) == 0: #IT IS IN TABLE and is NOT iot
-                    print("Device CPE " + cpevl2 + " already exists in table and IS NOT iot")
+                    pass
+                    #print("Device CPE " + cpevl2 + " already exists in table and IS NOT iot")
 
                 else: #IT IS IN TABLE AND IS IOT
                     #print("Device CPE " + cpevl2 + " already exists in table and IS  iot")
                     cve, description = np.ParseNVDJson(cpevl3)
                     cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
-                    cpe_list.append(cpe_obj)  # Insertion to list
+                    cpe_cve_desc.append(cpe_obj)  # Insertion to list
 
-        #for ind in cpe_list:
+        #for ind in cpe_cve_desc:
             #print(ind.cpe_name)
             #print(ind.cve_col)
             #print(ind.desc_col)
 
-        asf.destfr1()
-        asf.frame2(cpe_list)
-
+        rootfr.destfr1()
+        rootfr.frame2(cpe_cve_desc)
 
 
 mydb.commit()
