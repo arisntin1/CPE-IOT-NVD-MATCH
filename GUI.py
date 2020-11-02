@@ -7,6 +7,7 @@ from tkinter import ttk
 import mysql.connector
 from JsonParsing import NmapParse
 
+#creating database connector
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -16,15 +17,17 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-
+#CPE OBJECT
 class CPE:
-    def __init__(self, name_of_cpe, cve_list, desc_list):
+    def __init__(self, name_of_cpe, cve_list, desc_list, cvssv3):
         self.cpe_name = name_of_cpe
         self.cve_col = cve_list
         self.desc_col = desc_list
+        self.cvss = cvssv3
 
 class UI:
 
+    #INITIALIZING OBJECTS
     def __init__(self, root):
         self.root = root
         self.root.title("IOT VULNERABILITY SYSTEM")
@@ -38,7 +41,7 @@ class UI:
     def destfr1(self):
         self.frame1.destroy()
 
-    # Starting Frame
+    # First Frame
     def frame1(self):
         self.frame1 = Frame(self.root, bg="white")
         self.frame1.place(x=300, y=450, width=1100, height=100)
@@ -50,12 +53,13 @@ class UI:
         self.btn_img = ImageTk.PhotoImage(file="images/magnifying-glass.png")
         btn = Button(self.frame1, image=self.btn_img, bg="blue", cursor="hand2", command=self.provide_address).place(
             x=1010, y=25)
+        print(tkinter.TkVersion)
 
     # Second Frame
     def frame2(self, des_list):
         self.frame1 = Frame(self.root, bg="#BFBFBF")
         self.frame1.place(x=1, y=1, relwidth=1, relheight=1)
-        Label(self.frame1, text="HERE ARE ALL THE IOT DEVICES VULNERABILITES!", font=("Arial", 20, "bold"),fg="white", bg='blue4').place(x=400, y=50)
+        Label(self.frame1, text="HERE ARE ALL THE IDENTIFIED IOT DEVICES VULNERABILITES!", font=("Arial", 20, "bold"),fg="white", bg='blue4').place(x=400, y=50)
         # Using treeview widget
         treev = ttk.Treeview(root, selectmode='browse')
 
@@ -90,14 +94,19 @@ class UI:
         treev.heading("2", text="CVE")
         treev.heading("3", text="DESCRIPTION", anchor='w')
 
+
+        #coloring lines
+        #treev.tag_configure('redcvss', background='red')
+
         # Inserting the items and their features to the
         # columns built
 
         for item in des_list:
             id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
             for index in range(len(item.cve_col)):
-                treev.insert(id, 'end', values=(index+1, item.cve_col[index], item.desc_col[index]))
+                treev.insert(id, 'end', values=(item.cvss[index], item.cve_col[index], item.desc_col[index]))
 
+    #Destroy root window
     def close_window(self):
         root.destroy()
 
@@ -117,11 +126,6 @@ class Procedures:
         np = NmapParse()
         values = np.NmapScanParse(ipaddrs)
         val = '0'
-
-        # CPE_LIST einai h lista pou 8a steileis telika gia na kaneis populate to treeview
-        # periexei antikeimena typou CPE
-
-        # CPE einai antikeimeno me onoma tou cpe, lista cve, lista description
         cpe_cve_desc = []
 
         for i in values:
@@ -133,41 +137,31 @@ class Procedures:
             myresult = mycursor.fetchall()
 
             if len(myresult) == 0: #CHECK : Not in table
-                # print("Device CPE " + cpevl2 + "  NOT IN table")
                 result = tkinter.messagebox.askquestion('CPE NOT IN DATABASE', 'IS  %s  RELATED TO AN IOT DEVICE?' %(str(cpevl3)))
                 if result == 'yes':
-                    cve, description = np.ParseNVDJson(cpevl3)
-                    cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
+                    cve, description, cvss = np.ParseNVDJson(cpevl3)
+                    cpe_obj = CPE(cpevl3, cve, description, cvss)  # Creation of object
                     cpe_cve_desc.append(cpe_obj)  # Insertion to list
                     mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'YES')", cpevl)
                     mydb.commit()
                 else:
                     mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'NO')", cpevl)
                     mydb.commit()
-                    #root.destroy()  # Closing Tkinter window forcefully.
-
-                print(mycursor.rowcount, "record were inserted.")
 
 
-                # print(cve, description)
             else: #CHECK: CPE IS IN TABLE
                 query2 = "SELECT cpe FROM cpetbl WHERE cpe LIKE '{}' AND iot = 'YES'".format(cpevl3)
                 mycursor.execute(query2, cpevl2)
                 myresult2 = mycursor.fetchall()
                 if len(myresult2) == 0: #IT IS IN TABLE and is NOT iot
                     pass
-                    #print("Device CPE " + cpevl2 + " already exists in table and IS NOT iot")
 
                 else: #IT IS IN TABLE AND IS IOT
-                    #print("Device CPE " + cpevl2 + " already exists in table and IS  iot")
-                    cve, description = np.ParseNVDJson(cpevl3)
-                    cpe_obj = CPE(cpevl3, cve, description)  # Creation of object
+                    cve, description, cvss = np.ParseNVDJson(cpevl3)
+                    cpe_obj = CPE(cpevl3, cve, description, cvss)  # Creation of object
                     cpe_cve_desc.append(cpe_obj)  # Insertion to list
 
-        #for ind in cpe_cve_desc:
-            #print(ind.cpe_name)
-            #print(ind.cve_col)
-            #print(ind.desc_col)
+
 
         rootfr.destfr1()
         rootfr.frame2(cpe_cve_desc)

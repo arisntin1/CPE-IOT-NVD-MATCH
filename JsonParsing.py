@@ -157,18 +157,23 @@ class NmapParse:
         cveitem = results['CVE_Items']
         description = []
         cve = []
+        cvss = []
         for h in cveitem:
             cvekeyval = h['cve']
+            impact = h['impact']
             for i in cvekeyval:
              cveid = cvekeyval['CVE_data_meta']
+            basemetricsv3 = impact['baseMetricV3']
+            cvssv3itm = basemetricsv3['cvssV3']
             desc = cvekeyval['description']
             descdata = desc['description_data']
+            cvss.append(cvssv3itm["baseScore"])
             cve.append(cveid["ID"])
             description.append(descdata[0]["value"])
-            #print("CVEID HERE !!!!", cvekeyval)
+            #print("cvss !!!!", cvss)
             #print("DESKDATA HERE ****", cveid)
             #print (cve)
-        return cve, description
+        return cve, description , cvss
 
             #print("HEEEELP CVE", cve, "HERE IS THE  DESCRIPTION : ", description)
 
