@@ -150,7 +150,7 @@ class NmapParse:
         return values
 
     def ParseNVDJson(self, cpe):
-        url = 'https://services.nvd.nist.gov/rest/json/cves/1.0?cpeMatchString=' + cpe
+        url = 'https://services.nvd.nist.gov/rest/json/cves/1.0?cpeMatchString=' + cpe + "&resultsPerPage=50"
         resp = requests.get(url=url)
         data = resp.json()
         results = data['result']

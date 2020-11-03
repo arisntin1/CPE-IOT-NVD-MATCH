@@ -53,7 +53,6 @@ class UI:
         self.btn_img = ImageTk.PhotoImage(file="images/magnifying-glass.png")
         btn = Button(self.frame1, image=self.btn_img, bg="blue", cursor="hand2", command=self.provide_address).place(
             x=1010, y=25)
-        print(tkinter.TkVersion)
 
     # Second Frame
     def frame2(self, des_list):
@@ -65,7 +64,7 @@ class UI:
 
         # Calling pack method w.r.to treeview
         treev.place(x=60, y=150, width=1400, height=530)
-
+        
         # Constructing vertical scrollbar
         # with treeview
         verscrlbar = ttk.Scrollbar(root, orient="horizontal", command=treev.xview )
@@ -78,25 +77,27 @@ class UI:
         treev.configure(xscrollcommand=verscrlbar.set)
 
         # Defining number of columns
-        treev["columns"] = ("1", "2", "3")
+        treev["columns"] = ("1", "2", "3", "4")
         # Defining heading
         treev['show'] = 'headings'
 
         # Assigning the width and anchor to  the
         # respective columns
         treev.column("1", minwidth=0, width=300, stretch=NO, anchor='c')
-        treev.column("2", minwidth=0, width=150, stretch=NO, anchor='c')
-        treev.column("3", minwidth=0, width=3500, stretch=YES, anchor='w')
+        treev.column("2", minwidth=0, width=80, stretch=NO, anchor='c')
+        treev.column("3", minwidth=0, width=100, stretch=NO, anchor='c')
+        treev.column("4", minwidth=0, width=3500, stretch=YES, anchor='w')
 
         # Assigning the heading names to the
         # respective columns
         treev.heading("1", text="CPE")
-        treev.heading("2", text="CVE")
-        treev.heading("3", text="DESCRIPTION", anchor='w')
+        treev.heading("3", text="CVE")
+        treev.heading("2", text="CVSS V3")
+        treev.heading("4", text="DESCRIPTION", anchor='w')
 
 
         #coloring lines
-        #treev.tag_configure('redcvss', background='red')
+        treev.tag_configure('redcvss', background='red')
 
         # Inserting the items and their features to the
         # columns built
@@ -104,7 +105,7 @@ class UI:
         for item in des_list:
             id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
             for index in range(len(item.cve_col)):
-                treev.insert(id, 'end', values=(item.cvss[index], item.cve_col[index], item.desc_col[index]))
+                treev.insert(id, 'end', values=(index+1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='redcvss')
 
     #Destroy root window
     def close_window(self):
