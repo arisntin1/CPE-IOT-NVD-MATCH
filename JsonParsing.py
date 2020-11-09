@@ -163,8 +163,12 @@ class NmapParse:
             impact = h['impact']
             for i in cvekeyval:
              cveid = cvekeyval['CVE_data_meta']
-            basemetricsv3 = impact['baseMetricV3']
-            cvssv3itm = basemetricsv3['cvssV3']
+            try:
+                basemetricsv3 = impact['baseMetricV3']
+                cvssv3itm = basemetricsv3['cvssV3']
+            except:
+                basemetricsv3 = impact['baseMetricV2']
+                cvssv3itm = basemetricsv3['cvssV2']
             desc = cvekeyval['description']
             descdata = desc['description_data']
             cvss.append(cvssv3itm["baseScore"])
