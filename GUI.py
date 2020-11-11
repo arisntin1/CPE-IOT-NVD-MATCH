@@ -97,7 +97,10 @@ class UI:
 
 
         #coloring lines
-        treev.tag_configure('redcvss', background='red')
+        treev.tag_configure('Critical', background='red')
+        treev.tag_configure('High', background='orange')
+        treev.tag_configure('Medium', background='yellow')
+        treev.tag_configure('Low', background='green')
 
         # Inserting the items and their features to the
         # columns built
@@ -105,7 +108,15 @@ class UI:
         for item in des_list:
             id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
             for index in range(len(item.cve_col)):
-                treev.insert(id, 'end', values=(index+1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='redcvss')
+                if item.cve.cvss[index] < 4:
+                    treev.insert(id, 'end', values=(index+1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Low')
+                elif item.cve.cvss[index] >= 4 and item.cve.cvss[index] < 7:
+                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Medium')
+                elif item.cve.cvss[index] >= 7 and item.cve.cvss[index] < 9:
+                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='High')
+                elif item.cve.cvss[index] >= 9:
+                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Critical')
+
 
     #Destroy root window
     def close_window(self):
