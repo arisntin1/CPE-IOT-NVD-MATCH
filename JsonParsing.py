@@ -137,17 +137,18 @@ class NmapParse:
             hostnames = scan[hostips]
             osmatch = hostnames['osmatch']
             osclass = (osmatch[0]['osclass'])
-            cpe = osclass[0]['cpe']
             vendor = osclass[0]['vendor']
-            for osclass in osclass:
-                cpe = osclass['cpe']
-                cpefnlist.extend(cpe)
-
-
+            os_class_list = osclass[0]['cpe']
+            for cpe in os_class_list:
+                if cpe not in cpefnlist:
+                    cpefnlist.append(cpe)
+                else:
+                    pass
 
         #print(cpefnlist)
-        values = [[item] for item in cpefnlist]
-        return values
+        # values = [item for item in cpefnlist]
+        # print(values)
+        return cpefnlist
 
     def ParseNVDJson(self, cpe):
         url = 'https://services.nvd.nist.gov/rest/json/cves/1.0?cpeMatchString=' + cpe + "&resultsPerPage=50"

@@ -25,6 +25,7 @@ class CPE:
         self.desc_col = desc_list
         self.cvss = cvssv3
 
+
 class UI:
 
     #INITIALIZING OBJECTS
@@ -108,14 +109,15 @@ class UI:
         for item in des_list:
             id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
             for index in range(len(item.cve_col)):
-                if item.cve.cvss[index] < 4:
+                cvssitm = item.cvss[index]
+                if cvssitm < 4:
                     treev.insert(id, 'end', values=(index+1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Low')
-                elif item.cve.cvss[index] >= 4 and item.cve.cvss[index] < 7:
-                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Medium')
-                elif item.cve.cvss[index] >= 7 and item.cve.cvss[index] < 9:
-                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='High')
-                elif item.cve.cvss[index] >= 9:
-                    treev.insert(id, 'end',values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Critical')
+                elif cvssitm >= 4 and cvssitm < 7:
+                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Medium')
+                elif cvssitm >= 7 and cvssitm < 9:
+                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='High')
+                elif cvssitm >= 9:
+                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Critical')
 
 
     #Destroy root window
@@ -136,11 +138,11 @@ class Procedures:
         rootfr = UI(root)
         ipaddrs = ipaddress
         np = NmapParse()
-        values = np.NmapScanParse(ipaddrs)
-        val = '0'
+        CPEallvalues = np.NmapScanParse(ipaddrs)
         cpe_cve_desc = []
+        print("CPEallvalues\n", CPEallvalues)
 
-        for i in values:
+        for i in CPEallvalues:
             cpevl = (i)
             cpevl2 = str(cpevl).replace('[', '(').replace(']', ',)')
             cpevl3 = cpevl2.replace('(\'', '').replace('\',)', '').replace(" ", '')
@@ -148,16 +150,17 @@ class Procedures:
             mycursor.execute(query, cpevl2)
             myresult = mycursor.fetchall()
 
+
             if len(myresult) == 0: #CHECK : Not in table
                 result = tkinter.messagebox.askquestion('CPE NOT IN DATABASE', 'IS  %s  RELATED TO AN IOT DEVICE?' %(str(cpevl3)))
                 if result == 'yes':
                     cve, description, cvss = np.ParseNVDJson(cpevl3)
                     cpe_obj = CPE(cpevl3, cve, description, cvss)  # Creation of object
                     cpe_cve_desc.append(cpe_obj)  # Insertion to list
-                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'YES')", cpevl)
+                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s, %s)", (cpevl, 'YES'))
                     mydb.commit()
                 else:
-                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s,'NO')", cpevl)
+                    mycursor.execute("INSERT IGNORE INTO cpetbl (cpe,iot) VALUES (%s, %s)", (cpevl, 'NO'))
                     mydb.commit()
 
 
