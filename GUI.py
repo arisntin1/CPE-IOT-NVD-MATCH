@@ -61,7 +61,7 @@ class UI:
         self.frame1.place(x=1, y=1, relwidth=1, relheight=1)
         Label(self.frame1, text="HERE ARE ALL THE IDENTIFIED IOT DEVICES VULNERABILITES!", font=("Arial", 20, "bold"),fg="white", bg='blue4').place(x=400, y=50)
         # Using treeview widget
-        treev = ttk.Treeview(root, selectmode='browse')
+        treev = ttk.Treeview(root, selectmode='browse', show='tree')
 
         # Calling pack method w.r.to treeview
         treev.place(x=60, y=150, width=1400, height=530)
@@ -78,23 +78,23 @@ class UI:
         treev.configure(xscrollcommand=verscrlbar.set)
 
         # Defining number of columns
-        treev["columns"] = ("1", "2", "3", "4")
+        treev["columns"] = ("1", "2", "3")
         # Defining heading
-        treev['show'] = 'headings'
+        treev['show'] = 'tree'
 
         # Assigning the width and anchor to  the
         # respective columns
-        treev.column("1", minwidth=0, width=300, stretch=NO, anchor='c')
-        treev.column("2", minwidth=0, width=80, stretch=NO, anchor='c')
-        treev.column("3", minwidth=0, width=100, stretch=NO, anchor='c')
-        treev.column("4", minwidth=0, width=3500, stretch=YES, anchor='w')
+        treev.column("#0", minwidth=0, width=300, stretch=NO, anchor='c')
+        treev.column("1", minwidth=0, width=80, stretch=NO, anchor='c')
+        treev.column("2", minwidth=0, width=100, stretch=NO, anchor='c')
+        treev.column("3", minwidth=0, width=3500, stretch=YES, anchor='w')
 
         # Assigning the heading names to the
         # respective columns
-        treev.heading("1", text="CPE")
-        treev.heading("3", text="CVE")
-        treev.heading("2", text="CVSS V3")
-        treev.heading("4", text="DESCRIPTION", anchor='w')
+        treev.heading("#0", text="CPE")
+        treev.heading("2", text="CVE")
+        treev.heading("1", text="CVSS V3")
+        treev.heading("3", text="DESCRIPTION", anchor='w')
 
 
         #coloring lines
@@ -107,17 +107,17 @@ class UI:
         # columns built
 
         for item in des_list:
-            id = treev.insert("", 'end', text='L1', values=(item.cpe_name))
+            id = treev.insert("", 'end', text=(item.cpe_name), values=("CVSS V3", "CVE", "DESCPTION"))
             for index in range(len(item.cve_col)):
                 cvssitm = item.cvss[index]
                 if cvssitm < 4:
-                    treev.insert(id, 'end', values=(index+1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Low')
+                    treev.insert(id, 'end', text="RESULTS -->", values=(item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Low')
                 elif cvssitm >= 4 and cvssitm < 7:
-                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Medium')
+                    treev.insert(id, 'end',text="RESULTS -->", values=(item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Medium')
                 elif cvssitm >= 7 and cvssitm < 9:
-                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='High')
+                    treev.insert(id, 'end',text="RESULTS -->", values=(item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='High')
                 elif cvssitm >= 9:
-                    treev.insert(id, 'end', values=(index + 1, item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Critical')
+                    treev.insert(id, 'end',text="RESULTS -->", values=(item.cvss[index], item.cve_col[index], item.desc_col[index]), tags='Critical')
 
 
     #Destroy root window
@@ -138,9 +138,13 @@ class Procedures:
         rootfr = UI(root)
         ipaddrs = ipaddress
         np = NmapParse()
-        CPEallvalues = np.NmapScanParse(ipaddrs)
+        try:
+            CPEallvalues = np.NmapScanParse(ipaddrs)
+        except:
+            tkinter.messagebox.showerror("ERROR","THERE WAS AN ERROR TRYING TO SEARCH YOUR NETWORK FOR AVAILABLE DEVICES. PLEASE TRY AGAIN OR CHECK YOUR ADDRESS")
+            mainloop()
+
         cpe_cve_desc = []
-        print("CPEallvalues\n", CPEallvalues)
 
         for i in CPEallvalues:
             cpevl = (i)

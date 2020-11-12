@@ -145,9 +145,6 @@ class NmapParse:
                 else:
                     pass
 
-        #print(cpefnlist)
-        # values = [item for item in cpefnlist]
-        # print(values)
         return cpefnlist
 
     def ParseNVDJson(self, cpe):
